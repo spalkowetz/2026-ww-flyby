@@ -448,3 +448,19 @@ function frame(now) {
 requestAnimationFrame(frame);
 })();
 </script>
+<script>
+// When embedded in an iframe (e.g. Squarespace), tell the parent page how tall the content is so it can size the frame.
+(() => {
+  if (window.parent === window) return;
+  const wrap = document.querySelector('.wrap');
+  let lastH = 0;
+  const send = () => {
+    const h = Math.ceil(wrap.getBoundingClientRect().bottom + window.scrollY + parseFloat(getComputedStyle(document.documentElement).paddingBottom || 0));
+    if (Math.abs(h - lastH) > 2) { lastH = h; window.parent.postMessage({ type: 'ww-flyby-height', height: h }, '*'); }
+  };
+  new ResizeObserver(send).observe(wrap);
+  window.addEventListener('load', send);
+  window.addEventListener('resize', send);
+  send();
+})();
+</script>
